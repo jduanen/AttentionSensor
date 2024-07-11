@@ -183,7 +183,7 @@ int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
 
     if (maxFaces > USPS_MAX_FACES) {
         //// TODO log warning
-        Serial.println("WARNING: maxFaces larger than HW limit");
+        Serial.println("WARNING: maxFaces larger than HW limit, clipping");
     }
 
     if (_read(&results)) {
@@ -211,7 +211,9 @@ uint8_t USPS::printFaces() {
     if (num > 0) {
         Serial.print("Number of Faces: "); Serial.println(num);
         for (int i = 0; (i < num); i++) {
+            Serial.print("Face #: "); Serial.println(i);
             printFace(faces[i]);
+            Serial.println("");
         }
     }
     return num;
@@ -227,7 +229,9 @@ void USPS::printFace(USPSface_t face) {
     Serial.print(face.boxWidth); Serial.print(", H=");
     Serial.print(face.boxHeight); Serial.println("]");
 
-    Serial.print("Face ID: "); Serial.println(face.id);
+    if (face.id >= 0) {
+        Serial.print("Face ID: "); Serial.println(face.id);
+    }
 
     Serial.print("Is facing: "); Serial.println(face.isFacing);
 }
