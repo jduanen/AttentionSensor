@@ -40,4 +40,5 @@ void loop() {
         toggle = (toggle == HIGH) ? LOW : HIGH;
     }
     cnt++;
+    delay(200);
 };
