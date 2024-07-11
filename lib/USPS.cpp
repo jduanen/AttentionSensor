@@ -32,20 +32,13 @@
 
 #include <Wire.h>
 
+#define SENSOR_VERSION  10 // 11 // 20
+
 #include "USPS.h"
 
 
-#if (SENSOR_VERSION == 1.0)
-const int32_t SAMPLE_DELAY_MS = V10_DELAY
-#elif (SENSOR_VERSION == 1.1)
-const int32_t SAMPLE_DELAY_MS = V11_DELAY
-#elif (SENSOR_VERSION == 2.0)
-const int32_t SAMPLE_DELAY_MS = V20_DELAY
-#endif
-
-
-USPS::USPS(float sampleRate = 5.0, uint8_t thresh = DEF_CONFIDENCE,
-           persistFaces = false, eraseFaces = false, ledEnable = true) {
+USPS::USPS(float sampleRate, uint8_t thresh, bool persistFaces, bool eraseFaces,
+           bool ledEnable) {
     _sampleRate = sampleRate;
     _confidence = thresh;
     _persist = persistFaces;
@@ -55,9 +48,9 @@ USPS::USPS(float sampleRate = 5.0, uint8_t thresh = DEF_CONFIDENCE,
     if (eraseFaces) {
         eraseRegisteredFaces();
     }
-}
+};
 
-bool USPS::setMode(uint8_t mode = USPS_MODE_CONT) {
+bool USPS::setMode(uint8_t mode) {
     if ((mode != USPS_MODE_CONT) && (mode != USPS_MODE_STBY)) {
         //// TODO log error
         Serial.println("ERROR: Invalid mode");
@@ -71,48 +64,48 @@ bool USPS::setMode(uint8_t mode = USPS_MODE_CONT) {
     }
     _mode = mode;
     return false;
-}
+};
 
 uint8_t USPS::getMode() {
     return _mode;
-}
+};
 
-bool USPS::enableFaceRec(bool enable = false) {
+bool USPS::enableFaceRec(bool enable) {
     if (_write(USPS_ENABLE_ID, enable)) {
         //// TODO log error
         return true;
     }
     _faceRecEnable = enable;
     return false;
-}
+};
 
 bool USPS::isFaceRecEnabled() {
     return _faceRecEnable;
-}
+};
 
-bool USPS::registerFace(uint8_t faceId = 0) {
+bool USPS::registerFace(uint8_t faceId) {
     if (faceId >= USPS_MAX_FACES) {
         //// TODO log error
         Serial.println("ERROR: Invalid face ID");
         return true;
     }
 
-    if (_write(USPS_CALIBRATE_ID, enable)) {
+    if (_write(USPS_CALIBRATE_ID, faceId)) {
         //// TODO log error
-        Serial.println("ERROR: Failed to enable registering of face")
+        Serial.println("ERROR: Failed to enable registering of face");
         return true;
     }
 
     //// N.B. if two frames pass with no face detection, this label is discarded
     //// FIXME figure out how to tell if two frames passed without registering
 
-    _faceBitmap |= (1 << faceId);
+    _facesBitmap |= (1 << faceId);
     return false;
-}
+};
 
 uint8_t USPS::getRegisteredFaceBitmap() {
     return _facesBitmap;
-}
+};
 
 bool USPS::persistRegisteredFaces(bool enable) {
     if (_write(USPS_PERSIST_IDS, enable)) {
@@ -123,14 +116,14 @@ bool USPS::persistRegisteredFaces(bool enable) {
 
     _persist = enable;
     return false;
-}
+};
 
 bool USPS::isRegisteredFacesPersistant() {
     return _persist;
-}
+};
 
 bool USPS::eraseRegisteredFaces() {
-    if (_write(USPS_ERASE_IDS, enable)) {
+    if (_write(USPS_ERASE_IDS, 0x00)) {
         //// TODO log error
         Serial.println("ERROR: Failed to erase registered faces");
         return true;
@@ -138,7 +131,7 @@ bool USPS::eraseRegisteredFaces() {
 
     _facesBitmap = 0x00;
     return false;
-}
+};
 
 bool USPS::enableLED(bool enable) {
     if (_write(USPS_DEBUG_MODE, enable)) {
@@ -149,13 +142,13 @@ bool USPS::enableLED(bool enable) {
 
     _ledEnable = enable;
     return false;
-}
+};
 
 bool USPS::isLEDEnabled() {
     return _ledEnable;
-}
+};
 
-bool USPS::setConfidenceThreshold(uint8_t thresh = DEF_CONFIDENCE) {
+bool USPS::setConfidenceThreshold(uint8_t thresh) {
     if (thresh > 100) {
         //// TODO log error
         Serial.println("ERROR: Confidence threshold must be < 100");
@@ -164,11 +157,11 @@ bool USPS::setConfidenceThreshold(uint8_t thresh = DEF_CONFIDENCE) {
 
     _confidence = thresh;
     return false;
-}
+};
 
 uint8_t USPS::getConfidenceThreshold() {
     return _confidence;
-}
+};
 
 int8_t USPS::singleShot(USPSface_t faces[], uint8_t maxFaces) {
     if (_mode != USPS_MODE_STBY) {
@@ -176,13 +169,13 @@ int8_t USPS::singleShot(USPSface_t faces[], uint8_t maxFaces) {
         Serial.println("ERROR: Device must be in Standby mode");
         return true;
     }
-    if (_write(USPS_SINGLE_SHOT, enable)) {
+    if (_write(USPS_SINGLE_SHOT, 0x00)) {
         //// TODO log error
         Serial.println("ERROR: Failed to enable LED");
         return true;
     }
     getFaces(faces, maxFaces);
-}
+};
 
 int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
     uint8_t numFaces;
@@ -203,7 +196,7 @@ int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
         faces[i] = results.faces[i];
     }
     return numFaces;
-}
+};
 
 //// TODO decide if this should be inline
 bool USPS::_read(USPSresults_t* results) {
@@ -235,7 +228,7 @@ bool USPS::_read(USPSresults_t* results) {
         }
     }
     return false;
-}
+};
 
 bool USPS::_write(uint8_t addr, uint8_t value) {
     Wire.beginTransmission(USPS_I2C_ADDRESS);
@@ -253,4 +246,4 @@ bool USPS::_write(uint8_t addr, uint8_t value) {
 
     Wire.endTransmission();
     return false;
-}
+};

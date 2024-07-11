@@ -8,13 +8,20 @@
  * 
  *******************************************************************************/
 
-#ifndef USPS_H
-#define USPS_H
+#pragma once
 
 #include <stdint.h>
 
 
-// N.B. must define SENSOR_VERSION  1.0 // 1.1 // 2.0
+// N.B. must define SENSOR_VERSION  10 // 11 // 20
+
+#if (SENSOR_VERSION == 10)
+#define SAMPLE_DELAY_MS = V10_DELAY
+#elif (SENSOR_VERSION == 11)
+#define SAMPLE_DELAY_MS = V11_DELAY
+#elif (SENSOR_VERSION == 20)
+#define SAMPLE_DELAY_MS = V20_DELAY
+#endif
 
 #define V10_MIN_DELAY  200  // 5 FPS
 #define V11_MIN_DELAY  200  // 5 FPS
@@ -54,8 +61,8 @@ using USPSface_t = struct __attribute__((__packed__)) {
     uint8_t boxConfidence;  // [0-255] confidence in face detection
     uint8_t boxLeft;        // [0-255] X coordinate of bounding box left side
     uint8_t boxTop;         // [0-255] Y coordinate of bounding box top side
-    uint8_t boxRight;       // [1-255] width of bounding box
-    uint8_t boxBottom;      // [1-255] height of bounding box
+    uint8_t boxWidth;       // [1-255] width of bounding box
+    uint8_t boxHeight;      // [1-255] height of bounding box
     int8_t idConfidence;    // [0-255] confidence in face recognition
     int8_t id;              // [0-7] number assigned to this (recognized) face
     uint8_t isFacing;       // [0,1]
@@ -70,17 +77,18 @@ using USPSresults_t = struct __attribute__((__packed__)) {
 
 
 class USPS {
-public:
-    USPS(float sampleRate = 5.0, uint8_t thresh = DEF_CONFIDENCE,
-         persistFaces = False, eraseFaces = False, ledEnable = True);
+  public:
+    USPS(float sampleRate=5.0, uint8_t thresh=DEF_CONFIDENCE,
+         bool persistFaces=false, bool eraseFaces=false,
+         bool ledEnable=true);
 
-    bool setMode(uint8_t mode = USPS_MODE_CONT);
+    bool setMode(uint8_t mode=USPS_MODE_CONT);
     uint8_t getMode();
 
-    bool enableFaceRec(bool enable = False);
+    bool enableFaceRec(bool enable=false);
     bool isFaceRecEnabled();
 
-    bool registerFace(uint8_t faceId = 0);
+    bool registerFace(uint8_t faceId=0);
     uint8_t getRegisteredFaceBitmap();
 
     bool persistRegisteredFaces(bool enable);
@@ -88,17 +96,18 @@ public:
 
     bool eraseRegisteredFaces();
 
-    void enableLED(bool enable);
+    bool enableLED(bool enable);
     bool isLEDEnabled();
 
-    bool setConfidenceThreshold(uint8_t thresh = DEF_CONFIDENCE);
+    bool setConfidenceThreshold(uint8_t thresh=DEF_CONFIDENCE);
     uint8_t getConfidenceThreshold();
 
     //// TODO consider adding set/getMaxNumFaces() methods
 
-    bool singleShot(USPSface_t faces[], uint8_t maxFaces);
+    int8_t singleShot(USPSface_t faces[], uint8_t maxFaces);
     int8_t getFaces(USPSface_t faces[], uint8_t maxFaces);
-protected:
+
+  protected:
     bool _persist;
     uint8_t _mode;
     uint8_t _facesBitmap;
@@ -107,8 +116,6 @@ protected:
     bool _ledEnable;
     float _sampleRate;
 
-    bool _read(USPSresults_t* results) {
+    bool _read(USPSresults_t* results);
     bool _write(uint8_t addr, uint8_t value);
-}
-
-#endif  // USPS_H
+};
