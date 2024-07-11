@@ -58,7 +58,7 @@ typedef struct {
 } USPSresultsHdr_t;
 
 typedef struct __attribute__((__packed__)) {
-    uint8_t boxConfidence;  // [0-255] confidence in face detection
+    uint8_t boxConfidence;  // [0-100] confidence in face detection
     uint8_t boxLeft;        // [0-255] X coordinate of bounding box left side
     uint8_t boxTop;         // [0-255] Y coordinate of bounding box top side
     uint8_t boxWidth;       // [1-255] width of bounding box
