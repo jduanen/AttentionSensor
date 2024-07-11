@@ -193,10 +193,44 @@ int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
     }
     numFaces = min(results.numFaces, maxFaces);
     for (int i = 0; (i < numFaces); i++) {
-        faces[i] = results.faces[i];
+        if (results.faces[i].boxConfidence >= _confidence) {
+            faces[i] = results.faces[i];
+        } else {
+            Serial.print("INFO: Face below confidence threshold, ");
+            Serial.println(results.faces[i].boxConfidence);
+            numFaces--;
+        }
     }
     return numFaces;
 };
+
+uint8_t USPS::printFaces() {
+    USPSface_t faces[USPS_MAX_FACES];
+
+    uint8_t num = getFaces(faces, USPS_MAX_FACES);
+    if (num > 0) {
+        Serial.print("Number of Faces: "); Serial.println(num);
+        for (int i = 0; (i < num); i++) {
+            printFace(faces[i]);
+        }
+    }
+    return num;
+};
+
+void USPS::printFace(USPSface_t face) {
+    Serial.print("Face detection confidence: ");
+    Serial.println(face.boxConfidence);
+    
+    Serial.print("Bounding box: [X=");
+    Serial.print(face.boxLeft); Serial.print(", Y=");
+    Serial.print(face.boxTop); Serial.print(", W=");
+    Serial.print(face.boxWidth); Serial.print(", H=");
+    Serial.print(face.boxHeight); Serial.println("]");
+
+    Serial.print("Face ID: "); Serial.println(face.id);
+
+    Serial.print("Is facing: "); Serial.println(face.isFacing);
+}
 
 //// TODO decide if this should be inline
 bool USPS::_read(USPSresults_t* results) {

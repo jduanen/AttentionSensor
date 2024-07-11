@@ -107,6 +107,9 @@ class USPS {
     int8_t singleShot(USPSface_t faces[], uint8_t maxFaces);
     int8_t getFaces(USPSface_t faces[], uint8_t maxFaces);
 
+    uint8_t printFaces();
+    void printFace(USPSface_t face);
+
   protected:
     bool _persist;
     uint8_t _mode;
