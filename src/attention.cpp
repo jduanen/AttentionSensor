@@ -9,10 +9,11 @@
 #include "attention.h"
 
 
-#define ACTIVATE_PIN    D3
-
-
 USPS *usps;
+
+bool active = false;
+uint8_t detects = 0;
+uint16_t activeTime;
 
 
 void setup() {
@@ -28,17 +29,30 @@ void setup() {
     Serial.println("BEGIN");  //// TMP TMP TMP
 };
 
-bool toggle = LOW;
-int cnt = 0;
-
+//// FIXME make this work for multiple faces
 void loop() {
-    if (usps->printFaces() > 0) {
-        Serial.println("--------");
+    USPSface_t faces;
+    int8_t numFaces;
+
+    numFaces = usps->getFaces(&faces, 1);
+    if (numFaces && (faces.boxConfidence >= MIN_CONFIDENCE)) {
+        detects++;
+        if (!active) {
+            if (detects >= DETECT_COUNT) {
+                active = true;
+                activeTime = millis();
+                digitalWrite(ACTIVATE_PIN, HIGH);
+            }
+        }
+    } else {
+        detects = 0;
+        if (active) {
+            if ((millis() - activeTime) > MIN_ACTIVE_MS) {
+                active = false;
+                digitalWrite(ACTIVATE_PIN, LOW);
+            }
+        }
     }
-    digitalWrite(ACTIVATE_PIN, toggle);
-    if ((cnt % 100) == 0) {
-        toggle = (toggle == HIGH) ? LOW : HIGH;
-    }
-    cnt++;
-    delay(200);
+
+    delay(LOOP_DELAY);
 };
