@@ -174,7 +174,7 @@ int8_t USPS::singleShot(USPSface_t faces[], uint8_t maxFaces) {
         Serial.println("ERROR: Failed to enable LED");
         return true;
     }
-    getFaces(faces, maxFaces);
+    return getFaces(faces, maxFaces);
 };
 
 int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
@@ -196,9 +196,11 @@ int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
         if (results.faces[i].boxConfidence >= _confidence) {
             faces[i] = results.faces[i];
         } else {
-            Serial.print("INFO: Face below confidence threshold, ");
-            Serial.println(results.faces[i].boxConfidence);
             numFaces--;
+            if (false) {
+                Serial.print("INFO: Face below confidence threshold, ");
+                Serial.println(results.faces[i].boxConfidence);
+            }
         }
     }
     return numFaces;
