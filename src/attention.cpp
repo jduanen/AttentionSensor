@@ -9,7 +9,7 @@
 #include "attention.h"
 
 
-USPS usps();
+USPS *usps;
 
 
 void setup() {
@@ -18,12 +18,15 @@ void setup() {
     delay(500);
 
     Wire.begin();
+    usps = new USPS();
     Serial.println("BEGIN");  //// TMP TMP TMP
 };
 
 void loop() {
+    if (usps->printFaces() > 0) {
+        Serial.println("--------");
+    }
     delay(1000);
-    Serial.print(".");
 };
 
 
