@@ -51,13 +51,13 @@
 // ref:
 // https://github.com/esphome/esphome/tree/dev/esphome/components/sen21231/sen21231.h
 
-using USPSresultsHdr_t = struct {
+typedef struct {
     uint8_t reserved[2];
     uint16_t dataSize;  // length of packet (header and checksum)
                         // V1.0: dataSize should be 40 (0x28)
-};
+} USPSresultsHdr_t;
 
-using USPSface_t = struct __attribute__((__packed__)) {
+typedef struct __attribute__((__packed__)) {
     uint8_t boxConfidence;  // [0-255] confidence in face detection
     uint8_t boxLeft;        // [0-255] X coordinate of bounding box left side
     uint8_t boxTop;         // [0-255] Y coordinate of bounding box top side
@@ -66,14 +66,14 @@ using USPSface_t = struct __attribute__((__packed__)) {
     int8_t idConfidence;    // [0-255] confidence in face recognition
     int8_t id;              // [0-7] number assigned to this (recognized) face
     uint8_t isFacing;       // [0,1]
-};
+} USPSface_t;
 
-using USPSresults_t = struct __attribute__((__packed__)) {
+typedef struct __attribute__((__packed__)) {
   USPSresultsHdr_t header;           // Bytes 0-4
   int8_t numFaces;                   // Byte 5
   USPSface_t faces[USPS_MAX_FACES];  // Bytes 6-37
   uint16_t checksum;                 // Bytes 38-39 CRC16 of Bytes 0-37
-};
+} USPSresults_t;
 
 
 class USPS {
