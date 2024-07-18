@@ -2,7 +2,15 @@
  * 
  * Attention Sensor
  * 
- *******************************************************************************/
+ * N.B. The sensor takes significant time to boot and so it must be accounted for.
+ *
+ * Xiao RP2040 has a power LED (Red), a user-programmable RGB LED, and a NEOPixel.
+ *   LED_BUILTIN = 17
+ *   PIN_LED_R = 17
+ *   PIN_LED_G = 16
+ *   PIN_LED_B = 25
+ *
+ ********************************************************************************/
 
 #include <Wire.h>
 
@@ -69,16 +77,12 @@ void loop() {
 
     int8_t n = usps->getFaces(faces, USPS_MAX_FACES);
     numFaces = n;
-/*
     for (int i = 0; (i < n); i++) {
-//        usps->printFace(faces[i]);
         if (!faces[i].isFacing || (faces[i].boxConfidence < MIN_CONFIDENCE)) {
             numFaces--;
-//            Serial.print("F: ");Serial.print(faces[i].isFacing); Serial.print(", ");
-//            Serial.println(faces[i].boxConfidence);
         }
     }
-*/
+
     if (numFaces < 0) {
         println("ERROR: failed to read, resetting...");
         // turn User LED red to indicate failure of peripheral read
