@@ -15,9 +15,11 @@
 #ifdef TESTING
 #define     print(val)      Serial.print(val);
 #define     println(val)    Serial.println(val);
+#define     serialInit()    Serial.begin(115200); while (!Serial) { ; }; delay(500);
 #else /* TESTING */
-#define     print(val) ;
-#define     println(val) ;
+#define     print(val)      ;
+#define     println(val)    ;
+#define     serialInit()    ;
 #endif /* TESTING */
 
 
@@ -32,32 +34,33 @@ USPS *usps;
 
 
 void setup() {
-#ifdef TESTING
-    Serial.begin(115200);
-    while (!Serial) { ; };
-    delay(500);
-#endif
+    serialInit();
 
     pinMode(ACTIVATE_PIN, OUTPUT);
     digitalWrite(ACTIVATE_PIN, LOW);
 
     pinMode(PIN_LED_R, OUTPUT);
-    digitalWrite(PIN_LED_R, HIGH);
     pinMode(PIN_LED_G, OUTPUT);
-    digitalWrite(PIN_LED_G, HIGH);
     pinMode(PIN_LED_B, OUTPUT);
-    digitalWrite(PIN_LED_B, HIGH);
+
+    // start up with User LED Blue
+    digitalWrite(PIN_LED_R, HIGH);
+    digitalWrite(PIN_LED_G, HIGH);
+    digitalWrite(PIN_LED_B, LOW);
 
     Wire.begin();
 
+    // have to wait for the sensor to come up
     int8_t n = -1;
     while (n < 0) {
         USPSface_t faces[1];
+        delay(500);
         usps = new USPS();
         n = usps->getFaces(faces, 1);
     }
 
-    println("BEGIN");
+    // turn off User LED on boot completion
+    digitalWrite(PIN_LED_B, HIGH);
 };
 
 void loop() {
@@ -92,6 +95,8 @@ void loop() {
                 active = true;
                 activeTime = millis();
                 digitalWrite(ACTIVATE_PIN, HIGH);
+
+                // turn User LED White to indicate active
                 digitalWrite(PIN_LED_R, LOW);
                 digitalWrite(PIN_LED_G, LOW);
                 digitalWrite(PIN_LED_B, LOW);
@@ -103,6 +108,8 @@ void loop() {
             if ((millis() - activeTime) > MIN_ACTIVE_MS) {
                 active = false;
                 digitalWrite(ACTIVATE_PIN, LOW);
+
+                // turn off User LED to indicate inactive
                 digitalWrite(PIN_LED_R, HIGH);
                 digitalWrite(PIN_LED_G, HIGH);
                 digitalWrite(PIN_LED_B, HIGH);
