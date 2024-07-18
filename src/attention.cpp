@@ -9,19 +9,34 @@
 #include "attention.h"
 
 
-USPS *usps;
+////#define TESTING
+
+
+#ifdef TESTING
+#define     print(val)      Serial.print(val);
+#define     println(val)    Serial.println(val);
+#else /* TESTING */
+#define     print(val) ;
+#define     println(val) ;
+#endif /* TESTING */
+
+
+void (* resetFunc)(void) = 0;
+
 
 bool active = false;
 uint8_t detects = 0;
 unsigned long activeTime;
 
-void (* resetFunc)(void) = 0;
+USPS *usps;
 
 
 void setup() {
-//    Serial.begin(115200);
-//    while (!Serial) { ; };
+#ifdef TESTING
+    Serial.begin(115200);
+    while (!Serial) { ; };
     delay(500);
+#endif
 
     pinMode(ACTIVATE_PIN, OUTPUT);
     digitalWrite(ACTIVATE_PIN, LOW);
@@ -34,8 +49,15 @@ void setup() {
     digitalWrite(PIN_LED_B, HIGH);
 
     Wire.begin();
-    usps = new USPS();
-//    Serial.println("BEGIN");  //// TMP TMP TMP
+
+    int8_t n = -1;
+    while (n < 0) {
+        USPSface_t faces[1];
+        usps = new USPS();
+        n = usps->getFaces(faces, 1);
+    }
+
+    println("BEGIN");
 };
 
 void loop() {
@@ -53,14 +75,14 @@ void loop() {
 //            Serial.println(faces[i].boxConfidence);
         }
     }
-//    Serial.print("N: ");Serial.print(n); Serial.print(", "); Serial.println(numFaces);
 */
     if (numFaces < 0) {
-//        Serial.println("ERROR: failed to read, resetting...");
+        println("ERROR: failed to read, resetting...");
+        // turn User LED red to indicate failure of peripheral read
         digitalWrite(PIN_LED_R, LOW);
         digitalWrite(PIN_LED_G, HIGH);
         digitalWrite(PIN_LED_B, HIGH);
-        resetFunc();
+        usps = new USPS();
         return;
     }
     if (numFaces) {
@@ -70,7 +92,6 @@ void loop() {
                 active = true;
                 activeTime = millis();
                 digitalWrite(ACTIVATE_PIN, HIGH);
-//                Serial.println("ACTIVE");
                 digitalWrite(PIN_LED_R, LOW);
                 digitalWrite(PIN_LED_G, LOW);
                 digitalWrite(PIN_LED_B, LOW);
@@ -82,20 +103,12 @@ void loop() {
             if ((millis() - activeTime) > MIN_ACTIVE_MS) {
                 active = false;
                 digitalWrite(ACTIVATE_PIN, LOW);
-//                Serial.println("INACTIVE");
                 digitalWrite(PIN_LED_R, HIGH);
                 digitalWrite(PIN_LED_G, HIGH);
                 digitalWrite(PIN_LED_B, HIGH);
             }
         }
     }
-    /*
-    Serial.print(numFaces); Serial.print(" ");
-    Serial.print(active); Serial.print(" ");
-    Serial.print(detects); Serial.print(" ");
-    Serial.print(activeTime); Serial.print(" ");
-    Serial.println(millis());
-    */
 
     delay(LOOP_DELAY);
 };
