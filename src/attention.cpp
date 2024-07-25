@@ -9,7 +9,7 @@
 #include "attention.h"
 
 
-#define TESTING
+////#define TESTING
 
 
 #ifdef TESTING
@@ -63,6 +63,7 @@ void setup() {
     // turn off User LED and NeoPixel on boot completion
     userLED->off();
     neoPix->off();
+    print("START");
 };
 
 void loop() {
@@ -81,6 +82,7 @@ void loop() {
         println("ERROR: failed to read, resetting...");
         // turn User LED red to indicate failure of peripheral read
         userLED->setColor(RED);
+        neoPix->off();
         usps = new USPS();
         return;
     }
@@ -93,7 +95,7 @@ void loop() {
                 digitalWrite(ACTIVATE_PIN, HIGH);
 
                 // turn User LED White to indicate active
-                userLED->setColor(WHITE);
+                neoPix->setColor(WHITE);
             }
         }
     } else {
@@ -104,7 +106,7 @@ void loop() {
                 digitalWrite(ACTIVATE_PIN, LOW);
 
                 // turn off User LED to indicate inactive
-                userLED->off();
+                neoPix->off();
             }
         }
     }
