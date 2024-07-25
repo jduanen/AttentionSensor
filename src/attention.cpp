@@ -51,21 +51,10 @@ void setup() {
 
     // start up with User LED Blue and Green NeoPixel
     userLED->setColor(BLUE);
-
-    print("RED: ");
-    neoPix->setColor(RED);
-    delay(2000);  //// TMP TMP TMP
-    print("GREEN: ");
     neoPix->setColor(GREEN);
-    delay(2000);  //// TMP TMP TMP
-    print("BLUE: ");
-    neoPix->setColor(BLUE);
-    delay(2000);  //// TMP TMP TMP
-    println("");
 
     Wire.begin();
 
-    /*
     // have to wait for the sensor to come up
     int8_t n = -1;
     while (n < 0) {
@@ -74,7 +63,6 @@ void setup() {
         usps = new USPS();
         n = usps->getFaces(faces, 1);
     }
-    */
 
     // turn off User LED and NeoPixel on boot completion
     userLED->off();
@@ -85,7 +73,6 @@ void loop() {
     USPSface_t faces[USPS_MAX_FACES];
     int8_t numFaces;
 
-    /*
     int8_t n = usps->getFaces(faces, USPS_MAX_FACES);
     numFaces = n;
     for (int i = 0; (i < n); i++) {
@@ -97,9 +84,7 @@ void loop() {
     if (numFaces < 0) {
         println("ERROR: failed to read, resetting...");
         // turn User LED red to indicate failure of peripheral read
-        digitalWrite(PIN_LED_R, LOW);
-        digitalWrite(PIN_LED_G, HIGH);
-        digitalWrite(PIN_LED_B, HIGH);
+        userLED->setColor(RED);
         usps = new USPS();
         return;
     }
@@ -112,9 +97,7 @@ void loop() {
                 digitalWrite(ACTIVATE_PIN, HIGH);
 
                 // turn User LED White to indicate active
-                digitalWrite(PIN_LED_R, LOW);
-                digitalWrite(PIN_LED_G, LOW);
-                digitalWrite(PIN_LED_B, LOW);
+                userLED->setColor(WHITE);
             }
         }
     } else {
@@ -125,16 +108,12 @@ void loop() {
                 digitalWrite(ACTIVATE_PIN, LOW);
 
                 // turn off User LED to indicate inactive
-                digitalWrite(PIN_LED_R, HIGH);
-                digitalWrite(PIN_LED_G, HIGH);
-                digitalWrite(PIN_LED_B, HIGH);
+                userLED->off();
             }
         }
     }
     uint8_t val = (digitalRead(PIN_SW0) < 2) || (digitalRead(PIN_SW1) < 1) || digitalRead(PIN_SW0);
     print("> "); println(val);
-    */
-    print(".");
 
     delay(LOOP_DELAY);
 };
