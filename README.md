@@ -18,9 +18,9 @@ controller that can be integrated with Home Assistant. [see examples in SensorNe
 An example use case of this type of device is to create a module that can be
 used to enable a display only when a person is facing the display. This can be
 useful for displays that have limited lifetimes or consume substantial amounts
-of energy and need not be active when noone is looking at them.
+of energy and need not be active when no one is looking at them.
 
-## QTC+ Nixie Tube Clock with Attenion Sensor
+## QTC+ Nixie Tube Clock with Attention Sensor
 The specific example given here is used in conjunction with a QTC+ nixie-tube
 clock. The QTC+ is modified to enable and disable the clock's high-voltage
 power supply. The PWM output pin is lifted and brought out to the Attention
@@ -31,19 +31,24 @@ This example uses a Xiao RP2040 controller to interface to the SEN21231 and to
 generate the output signal that gates the clock's HV PSU PWM signal with a
 74HC08.
 
-# Face Detecting Attention Sensor
+# Face Detection and Recognition Sensor
 
-This uses an RP2040-zero to interface to the SEN21231 and the switches used to
-register faces. This controller was chosen as it has a substantial number of
-GPIOs.
-** actually, maybe the Xiao RP2040 would work for this as it has a NeoPixel on-board
+A variant of the Attention Sensor device supports the binding of faces to
+identifiers that are to be emitted when the registered faces are detected,
+as well as indications of the detection of unregistered faces.
 
-* Notes
-  - want to modularize this, so a separate controller for managing the person sensor and the I/Os for face registration
-  - need to modify the ESPHome SEN21231 driver to talk with the sensor module (via UART?)
+This uses an RP2040-based microcontroller connected to the SEN21231, a set of
+switches used to select the IDs for registered faces, and an RGB LED to
+indicate the state of the registration and detection/recognition functions.
+
+This design is modularized so that it can be used in different applications.
+The attention sensor controller manages face registration and emits face
+detection indications over a serial port. A separate controller can be used
+that takes this serial input and interfaces the face detection/recognition
+subsystem to Home Assistant.
 
 * Features
-  - Integrated with Home Assistant
+  - Integrated with Home Assistant via independent microcontroller.
     * generate events when faces are detected and provide Face ID
   - Register Face
     * select face number with number switch
