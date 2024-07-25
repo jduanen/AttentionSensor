@@ -4,20 +4,12 @@
  * 
  * N.B. The sensor takes significant time to boot and so it must be accounted for.
  *
- * Xiao RP2040 has a power LED (Red), a user-programmable RGB LED, and a NEOPixel.
- *   LED_BUILTIN = 17
- *   PIN_LED_R = 17
- *   PIN_LED_G = 16
- *   PIN_LED_B = 25
- *
  ********************************************************************************/
-
-#include <Wire.h>
 
 #include "attention.h"
 
 
-////#define TESTING
+#define TESTING
 
 
 #ifdef TESTING
@@ -40,6 +32,9 @@ unsigned long activeTime;
 
 USPS *usps;
 
+OnBoardLED *userLED;
+OnBoardLED *neoPix;
+
 
 void setup() {
     serialInit();
@@ -47,17 +42,29 @@ void setup() {
     pinMode(ACTIVATE_PIN, OUTPUT);
     digitalWrite(ACTIVATE_PIN, LOW);
 
-    pinMode(PIN_LED_R, OUTPUT);
-    pinMode(PIN_LED_G, OUTPUT);
-    pinMode(PIN_LED_B, OUTPUT);
+    pinMode(PIN_SW0, INPUT_PULLUP);
+    pinMode(PIN_SW1, INPUT_PULLUP);
+    pinMode(PIN_SW2, INPUT_PULLUP);
 
-    // start up with User LED Blue
-    digitalWrite(PIN_LED_R, HIGH);
-    digitalWrite(PIN_LED_G, HIGH);
-    digitalWrite(PIN_LED_B, LOW);
+    userLED = new OnBoardLED(PIN_LED_R, PIN_LED_G, PIN_LED_B);
+    neoPix = new OnBoardLED(NEOPIXEL_POWER, PIN_NEOPIXEL);
+
+    // start up with User LED Blue and Green NeoPixel
+    userLED->setColor(BLUE);
+
+    print("RED");
+    neoPix->setColor(RED);
+    delay(1000);  //// TMP TMP TMP
+    print("GREEN");
+    neoPix->setColor(GREEN);
+    delay(1000);  //// TMP TMP TMP
+    print("BLUE");
+    neoPix->setColor(BLUE);
+    delay(1000);  //// TMP TMP TMP
 
     Wire.begin();
 
+    /*
     // have to wait for the sensor to come up
     int8_t n = -1;
     while (n < 0) {
@@ -66,15 +73,18 @@ void setup() {
         usps = new USPS();
         n = usps->getFaces(faces, 1);
     }
+    */
 
-    // turn off User LED on boot completion
-    digitalWrite(PIN_LED_B, HIGH);
+    // turn off User LED and NeoPixel on boot completion
+    userLED->off();
+    neoPix->off();
 };
 
 void loop() {
     USPSface_t faces[USPS_MAX_FACES];
     int8_t numFaces;
 
+    /*
     int8_t n = usps->getFaces(faces, USPS_MAX_FACES);
     numFaces = n;
     for (int i = 0; (i < n); i++) {
@@ -120,6 +130,10 @@ void loop() {
             }
         }
     }
+    uint8_t val = (digitalRead(PIN_SW0) < 2) || (digitalRead(PIN_SW1) < 1) || digitalRead(PIN_SW0);
+    print("> "); println(val);
+    */
+    print(".");
 
     delay(LOOP_DELAY);
 };
