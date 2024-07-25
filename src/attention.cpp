@@ -52,15 +52,16 @@ void setup() {
     // start up with User LED Blue and Green NeoPixel
     userLED->setColor(BLUE);
 
-    print("RED");
+    print("RED: ");
     neoPix->setColor(RED);
-    delay(1000);  //// TMP TMP TMP
-    print("GREEN");
+    delay(2000);  //// TMP TMP TMP
+    print("GREEN: ");
     neoPix->setColor(GREEN);
-    delay(1000);  //// TMP TMP TMP
-    print("BLUE");
+    delay(2000);  //// TMP TMP TMP
+    print("BLUE: ");
     neoPix->setColor(BLUE);
-    delay(1000);  //// TMP TMP TMP
+    delay(2000);  //// TMP TMP TMP
+    println("");
 
     Wire.begin();
 
