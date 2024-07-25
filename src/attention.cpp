@@ -42,10 +42,6 @@ void setup() {
     pinMode(ACTIVATE_PIN, OUTPUT);
     digitalWrite(ACTIVATE_PIN, LOW);
 
-    pinMode(PIN_SW0, INPUT_PULLUP);
-    pinMode(PIN_SW1, INPUT_PULLUP);
-    pinMode(PIN_SW2, INPUT_PULLUP);
-
     userLED = new OnBoardLED(PIN_LED_R, PIN_LED_G, PIN_LED_B);
     neoPix = new OnBoardLED(NEOPIXEL_POWER, PIN_NEOPIXEL);
 
@@ -112,8 +108,6 @@ void loop() {
             }
         }
     }
-    uint8_t val = (digitalRead(PIN_SW0) < 2) || (digitalRead(PIN_SW1) < 1) || digitalRead(PIN_SW0);
-    print("> "); println(val);
 
     delay(LOOP_DELAY);
 };

@@ -4,8 +4,8 @@
  * 
  *******************************************************************************/
 
-#ifndef ATTENTION_H
-#define ATTENTION_H
+#pragma once
+
 
 #include <stdint.h>
 #include <Arduino.h>
@@ -28,11 +28,3 @@
 
 // amount to delay between sensor samples
 #define LOOP_DELAY      100  //// TODO tune this
-
-// face ID selection switch
-#define PIN_SW0         D10
-#define PIN_SW1         D9
-#define PIN_SW2         D8
-
-
-#endif  // ATTENTION_H
