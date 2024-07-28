@@ -97,7 +97,18 @@ bool USPS::registerFace(uint8_t faceId) {
     }
 
     //// N.B. if two frames pass with no face detection, this label is discarded
-    //// FIXME figure out how to tell if two frames passed without registering
+    int8_t n;
+    int8_t cnt = 0;
+    USPSface_t face;
+    while ((n = getFaces(&face, 1)) < 1) {
+        if (cnt++ > 2) {
+            Serial.println("ERROR: unable failed to get good face to register");
+            return true;
+        }
+        if (face.isFacing) {
+            break;
+        }
+    }
 
     _facesBitmap |= (1 << faceId);
     return false;
@@ -196,7 +207,6 @@ int8_t USPS::getFaces(USPSface_t faces[], uint8_t maxFaces) {
         if (results.faces[i].boxConfidence >= _confidence) {
             faces[i] = results.faces[i];
         } else {
-            numFaces--;
             if (false) {
                 Serial.print("INFO: Face below confidence threshold, ");
                 Serial.println(results.faces[i].boxConfidence);
