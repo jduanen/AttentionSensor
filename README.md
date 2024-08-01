@@ -24,6 +24,9 @@ This example uses a Xiao RP2040 controller to interface to the SEN21231 and to
 generate the output signal that gates the clock's HV PSU PWM signal with a
 74HC08.
 
+![Attention Sensor](AttentionSensor.png)
+
+
 # Links
 * rp2040-zero
   - https://www.waveshare.com/rp2040-zero.htm
